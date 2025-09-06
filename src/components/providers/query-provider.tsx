@@ -1,12 +1,12 @@
 "use client";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ReactNode, useRef } from "react";
+import { ReactNode, useState } from "react";
 
 export default function QueryProvider({ children }: { children: ReactNode }) {
-  const clientRef = useRef<QueryClient>();
-  if (!clientRef.current) {
-    clientRef.current = new QueryClient({
+  // Gunakan useState lazy init agar instance stabil dan terdefinisi secara tipe
+  const [client] = useState(() =>
+    new QueryClient({
       defaultOptions: {
         queries: {
           staleTime: 30_000,
@@ -17,11 +17,8 @@ export default function QueryProvider({ children }: { children: ReactNode }) {
           retry: 1,
         },
       },
-    });
-  }
-
-  return (
-    <QueryClientProvider client={clientRef.current}>{children}</QueryClientProvider>
+    })
   );
-}
 
+  return <QueryClientProvider client={client}>{children}</QueryClientProvider>;
+}

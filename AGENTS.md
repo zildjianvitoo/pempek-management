@@ -128,13 +128,13 @@ Catatan: saldo stok dihitung agregasi `StockLedger` (bukan kolom saldo), memasti
 - [x] Setup Prisma + SQLite (`app.db`) + migrasi awal. Catatan: jalankan migrasi lokal via `bun run prisma:migrate` bila belum.
 - [x] Konfigurasi lint/format (ESLint, Prettier) minimal.
 - [x] Layout dasar + Header switch Cabang/Tanggal (dummy data awal).
-- [ ] Integrasi MCP context7 (konfigurasi & dokumentasi singkat penggunaan di repo).
+<!-- - [ ] Integrasi MCP context7 (konfigurasi & dokumentasi singkat penggunaan di repo). -->
 
 ### M2 – Auth & RBAC
 
-- [ ] NextAuth/Credentials + hashing password (bcrypt).
-- [ ] Middleware proteksi route + guard berbasis role.
-- [ ] Seed user awal (Owner, Kasir).
+- [x] NextAuth/Credentials + hashing password (bcryptjs).
+- [x] Middleware proteksi route + guard berbasis role.
+- [x] Seed user awal (Owner, Kasir) dengan password terhash.
 
 ### M3 – Master Data
 

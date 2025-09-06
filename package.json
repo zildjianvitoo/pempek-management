@@ -18,6 +18,9 @@
     "@prisma/client": "latest",
     "@tanstack/react-query": "^5.87.1",
     "@tanstack/react-table": "^8.21.3",
+    "bcryptjs": "latest",
+    "next-auth": "latest",
+    "openid-client": "latest",
     "next": "15.5.2",
     "react": "19.1.0",
     "react-dom": "19.1.0"

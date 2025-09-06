@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
@@ -10,26 +11,27 @@ async function main() {
     create: { code: "PST", name: "Pusat", address: "Jl. Contoh 123", isActive: true },
   });
 
-  // Create users (Owner, Kasir)
-  // Note: hash is placeholder; will be replaced when NextAuth is added.
+  // Create users (Owner, Kasir) — with hashed passwords
+  const ownerPassword = await bcrypt.hash("admin123", 10);
   await prisma.user.upsert({
     where: { email: "owner@example.com" },
     update: {},
     create: {
       name: "Owner",
       email: "owner@example.com",
-      hash: "changeme", // replace with bcrypt hash later
+      hash: ownerPassword,
       role: "OWNER",
     },
   });
 
-  const kasir = await prisma.user.upsert({
+  const kasirPassword = await bcrypt.hash("kasir123", 10);
+  await prisma.user.upsert({
     where: { email: "kasir@pusat.example.com" },
     update: {},
     create: {
       name: "Kasir Pusat",
       email: "kasir@pusat.example.com",
-      hash: "changeme", // replace with bcrypt hash later
+      hash: kasirPassword,
       role: "KASIR",
       branchId: pusat.id,
     },
@@ -104,4 +106,3 @@ main()
   .finally(async () => {
     await prisma.$disconnect();
   });
-

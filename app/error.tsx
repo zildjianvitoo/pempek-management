@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 export default function GlobalError({
   error,
@@ -13,7 +13,7 @@ export default function GlobalError({
         <div className="max-w-md text-center space-y-4">
           <h1 className="text-2xl font-semibold">Terjadi kesalahan</h1>
           <p className="text-sm text-neutral-600">
-            {error.message || 'Maaf, sesuatu tidak berjalan semestinya.'}
+            {error.message || "Maaf, sesuatu tidak berjalan semestinya."}
           </p>
           <button
             onClick={() => reset()}

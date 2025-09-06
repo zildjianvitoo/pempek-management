@@ -1,5 +1,6 @@
 @import "tailwindcss";
 
+/* Design tokens (light theme only for now) */
 @theme {
   --color-primary: #0e7490;
   --color-accent: #f59e0b;
@@ -7,42 +8,15 @@
   --color-danger: #e11d48;
   --color-neutral-900: #0f172a;
   --color-neutral-100: #f1f5f9;
-}
-
-:root {
-  color-scheme: light;
-}
-
-html, body {
-  @apply bg-white text-neutral-900;
-}
-
-/* Smooth focus rings and clean defaults */
-*:focus-visible {
-  @apply outline-none ring-2 ring-neutral-900/80 ring-offset-2 ring-offset-white;
-}
-
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+:root { color-scheme: light; }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+html, body { @apply bg-white text-neutral-900; }
+
+/* Smooth focus rings and clean defaults */
+*:focus-visible {
+  @apply outline-none ring-2 ring-neutral-900/70 ring-offset-2 ring-offset-white;
 }

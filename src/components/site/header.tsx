@@ -41,7 +41,7 @@ export default function Header() {
   }, [branch, date]);
 
   return (
-    <header className="sticky top-0 z-40 bg-white/80 backdrop-blur border-b border-neutral-200">
+    <header className="sticky top-0 z-40 bg-white border-b border-neutral-200 shadow-sm">
       <div className="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 h-16 flex items-center gap-3">
         <div className="font-semibold text-neutral-900">Pempek</div>
         <div className="mx-3 h-6 w-px bg-neutral-200" />
@@ -86,4 +86,3 @@ export default function Header() {
     </header>
   );
 }
-
