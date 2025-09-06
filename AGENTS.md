@@ -202,6 +202,11 @@ Catatan: saldo stok dihitung agregasi `StockLedger` (bukan kolom saldo), memasti
 - Hindari kolom saldo tersinkron—selalu derivasi dari `StockLedger` agar audit-able.
 - Jaga performa POS: gunakan memo/virtualisasi, minim re-render.
 - Standarisasi styling via shadcn/ui + Tailwind v4; gunakan token warna di CSS variables.
+  - Form handling: gunakan pola shadcn + React Hook Form + Zod.
+    - Komponen: `Form`, `FormField`, `FormItem`, `FormLabel`, `FormControl`, `FormMessage` + `Input/Button`.
+    - Validasi: schema `zod`, integrasi `zodResolver` (@hookform/resolvers).
+    - Hindari state manual per-field jika bisa di-handle lewat RHF.
+  - Tombol utama gunakan variant `primary` (`bg-primary text-primary-foreground`) dan ring fokus `ring-primary`.
 - Prefer versi terbaru untuk seluruh dependency (Next.js, Prisma, NextAuth, Tailwind v4, shadcn/ui, dlsb.)(Jika breaking change minta permintaan user dulu untuk mengupdatenya atau tidak).
 - Gunakan TanStack Query untuk fetching/caching, optimistic update POS & mutasi, dan invalidation per cabang/tanggal.
 - Gunakan TanStack Table untuk semua tabel data; pertimbangkan server-side pagination/sorting untuk dataset besar.

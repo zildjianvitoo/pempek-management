@@ -3,7 +3,9 @@
 /* Design tokens (light theme only for now) */
 @theme {
   --color-primary: #0e7490;
+  --color-primary-foreground: #ffffff;
   --color-accent: #f59e0b;
+  --color-accent-foreground: #0f172a;
   --color-success: #059669;
   --color-danger: #e11d48;
   --color-neutral-900: #0f172a;
@@ -17,6 +19,4 @@
 html, body { @apply bg-white text-neutral-900; }
 
 /* Smooth focus rings and clean defaults */
-*:focus-visible {
-  @apply outline-none ring-2 ring-neutral-900/70 ring-offset-2 ring-offset-white;
-}
+*:focus-visible { @apply outline-none ring-2 ring-primary/70 ring-offset-2 ring-offset-white; }
