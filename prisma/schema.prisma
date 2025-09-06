@@ -1,0 +1,233 @@
+// Prisma schema for Pempek Management (SQLite)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  OWNER
+  KASIR
+}
+
+enum LedgerReason {
+  PRODUKSI
+  PENJUALAN
+  RETUR
+  TRANSFER_IN
+  TRANSFER_OUT
+  WASTE
+  PENYESUAIAN
+}
+
+enum PaymentMethod {
+  CASH
+  QRIS
+  TRANSFER
+}
+
+enum TransferStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
+}
+
+model Branch {
+  id       String  @id @default(cuid())
+  name     String
+  code     String  @unique
+  address  String?
+  isActive Boolean @default(true)
+
+  users         User[]
+  prices        Price[]
+  stockLedgers  StockLedger[]
+  sales         Sale[]
+  expenses      Expense[]
+  dailyCloses   DailyClose[]
+  transfersFrom Transfer[] @relation("TransferFrom")
+  transfersTo   Transfer[] @relation("TransferTo")
+
+  @@index([name])
+}
+
+model User {
+  id       String @id @default(cuid())
+  name     String
+  email    String @unique
+  hash     String
+  role     Role
+  branchId String?
+  branch   Branch? @relation(fields: [branchId], references: [id])
+
+  cashierSales Sale[] @relation("CashierSales")
+  createdTransfers Transfer[] @relation("CreatedTransfers")
+  expenses Expense[]
+  dailyCloses DailyClose[] @relation("ClosedBy")
+
+  @@index([branchId])
+}
+
+model Product {
+  id       String  @id @default(cuid())
+  name     String
+  sku      String  @unique
+  category String?
+  unit     String?
+  isActive Boolean @default(true)
+
+  prices       Price[]
+  stockLedgers StockLedger[]
+  saleItems    SaleItem[]
+  transferItems TransferItem[]
+
+  @@index([name])
+}
+
+model Price {
+  id        String   @id @default(cuid())
+  productId String
+  branchId  String?
+  price     Decimal
+  cost      Decimal
+  effectiveAt DateTime @default(now())
+
+  product Product @relation(fields: [productId], references: [id])
+  branch  Branch? @relation(fields: [branchId], references: [id])
+
+  @@index([productId, branchId, effectiveAt])
+}
+
+model StockLedger {
+  id        String       @id @default(cuid())
+  branchId  String
+  productId String
+  qty       Int
+  reason    LedgerReason
+  refType   String?
+  refId     String?
+  note      String?
+  createdAt DateTime     @default(now())
+
+  branch  Branch  @relation(fields: [branchId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+
+  @@index([branchId, productId, createdAt])
+  @@index([refType, refId])
+}
+
+model Transfer {
+  id            String         @id @default(cuid())
+  fromBranchId  String
+  toBranchId    String
+  createdById   String
+  status        TransferStatus @default(PENDING)
+  createdAt     DateTime       @default(now())
+
+  fromBranch Branch @relation("TransferFrom", fields: [fromBranchId], references: [id])
+  toBranch   Branch @relation("TransferTo", fields: [toBranchId], references: [id])
+  createdBy  User   @relation("CreatedTransfers", fields: [createdById], references: [id])
+  items      TransferItem[]
+
+  @@index([fromBranchId])
+  @@index([toBranchId])
+}
+
+model TransferItem {
+  id          String   @id @default(cuid())
+  transferId  String
+  productId   String
+  qty         Int
+
+  transfer Transfer @relation(fields: [transferId], references: [id])
+  product  Product  @relation(fields: [productId], references: [id])
+
+  @@index([transferId])
+}
+
+model Sale {
+  id         String   @id @default(cuid())
+  branchId   String
+  cashierId  String
+  number     String   @unique
+  subtotal   Decimal
+  discount   Decimal  @default(0)
+  grandTotal Decimal
+  createdAt  DateTime @default(now())
+
+  branch  Branch @relation(fields: [branchId], references: [id])
+  cashier User   @relation("CashierSales", fields: [cashierId], references: [id])
+  items   SaleItem[]
+  payments Payment[]
+
+  @@index([branchId, createdAt])
+}
+
+model SaleItem {
+  id        String   @id @default(cuid())
+  saleId    String
+  productId String
+  qty       Int
+  price     Decimal
+  cost      Decimal
+  discount  Decimal  @default(0)
+  lineTotal Decimal
+
+  sale    Sale    @relation(fields: [saleId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+
+  @@index([saleId])
+}
+
+model Payment {
+  id      String        @id @default(cuid())
+  saleId  String
+  method  PaymentMethod
+  amount  Decimal
+
+  sale Sale @relation(fields: [saleId], references: [id])
+
+  @@index([saleId])
+}
+
+model Expense {
+  id        String   @id @default(cuid())
+  branchId  String
+  userId    String
+  category  String
+  amount    Decimal
+  note      String?
+  createdAt DateTime @default(now())
+
+  branch Branch @relation(fields: [branchId], references: [id])
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@index([branchId, createdAt])
+}
+
+model DailyClose {
+  id            String   @id @default(cuid())
+  branchId      String
+  date          DateTime
+  openingCash   Decimal  @default(0)
+  cashTotal     Decimal  @default(0)
+  qrisTotal     Decimal  @default(0)
+  transferTotal Decimal  @default(0)
+  expenseTotal  Decimal  @default(0)
+  expectedCash  Decimal  @default(0)
+  actualCash    Decimal  @default(0)
+  diff          Decimal  @default(0)
+  note          String?
+  closedById    String?
+  closedAt      DateTime?
+
+  branch   Branch @relation(fields: [branchId], references: [id])
+  closedBy User?  @relation("ClosedBy", fields: [closedById], references: [id])
+
+  @@unique([branchId, date])
+  @@index([branchId, date])
+}
