@@ -122,13 +122,13 @@ Catatan: saldo stok dihitung agregasi `StockLedger` (bukan kolom saldo), memasti
 
 ### M1 – Bootstrap & Dasar
 
-- [] Inisialisasi Next.js (TS, App Router) + Tailwind v4 + shadcn/ui (komponen dasar: Button, Input; dialog/tabs/table/toast menyusul).
-- [] Setup TanStack Query (QueryClient Provider, hook dasar, boundary error/loading).
-- [] Setup util tabel dengan TanStack Table (definisi kolom, sorting, pagination, selection).
-- [ ] Setup Prisma + SQLite (`app.db`) + migrasi awal.
-- [] Konfigurasi lint/format (ESLint, Prettier) minimal.
-- [] Layout dasar + Header switch Cabang/Tanggal (dummy data awal).
-- [] Integrasi MCP context7 (konfigurasi & dokumentasi singkat penggunaan di repo).
+- [x] Inisialisasi Next.js (TS, App Router) + Tailwind v4 + komponen UI dasar gaya shadcn (Button, Input).
+- [x] Setup TanStack Query (QueryClient Provider, hook dasar, boundary error/loading).
+- [x] Setup util tabel dengan TanStack Table (definisi kolom, sorting, pagination, selection).
+- [x] Setup Prisma + SQLite (`app.db`) + migrasi awal. Catatan: jalankan migrasi lokal via `bun run prisma:migrate` bila belum.
+- [x] Konfigurasi lint/format (ESLint, Prettier) minimal.
+- [x] Layout dasar + Header switch Cabang/Tanggal (dummy data awal).
+- [ ] Integrasi MCP context7 (konfigurasi & dokumentasi singkat penggunaan di repo).
 
 ### M2 – Auth & RBAC
 
@@ -205,3 +205,4 @@ Catatan: saldo stok dihitung agregasi `StockLedger` (bukan kolom saldo), memasti
 - Prefer versi terbaru untuk seluruh dependency (Next.js, Prisma, NextAuth, Tailwind v4, shadcn/ui, dlsb.)(Jika breaking change minta permintaan user dulu untuk mengupdatenya atau tidak).
 - Gunakan TanStack Query untuk fetching/caching, optimistic update POS & mutasi, dan invalidation per cabang/tanggal.
 - Gunakan TanStack Table untuk semua tabel data; pertimbangkan server-side pagination/sorting untuk dataset besar.
+- Terminal & Tooling: gunakan zsh sebagai shell default; package manager `bun` untuk dev scripts.
