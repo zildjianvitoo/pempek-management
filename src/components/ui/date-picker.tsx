@@ -6,21 +6,34 @@ import Calendar from "@/src/components/ui/calendar";
 import { cn } from "@/src/lib/cn";
 
 function toDateStrLocal(d: Date) {
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
+  // Display as DD-MM-YYYY
   const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const y = d.getFullYear();
+  return `${day}-${m}-${y}`;
 }
 
 function parseDateStrLocal(s: string | undefined | null): Date | null {
   if (!s) return null;
-  const m = /^([0-9]{4})-([0-9]{2})-([0-9]{2})$/.exec(s);
-  if (!m) return null;
-  const y = Number(m[1]);
-  const mo = Number(m[2]) - 1;
-  const d = Number(m[3]);
-  const date = new Date(y, mo, d);
-  return Number.isNaN(date.getTime()) ? null : date;
+  // Try DD-MM-YYYY
+  let m = /^([0-9]{2})-([0-9]{2})-([0-9]{4})$/.exec(s);
+  if (m) {
+    const d = Number(m[1]);
+    const mo = Number(m[2]) - 1;
+    const y = Number(m[3]);
+    const date = new Date(y, mo, d);
+    return Number.isNaN(date.getTime()) ? null : date;
+  }
+  // Fallback to legacy YYYY-MM-DD
+  m = /^([0-9]{4})-([0-9]{2})-([0-9]{2})$/.exec(s);
+  if (m) {
+    const y = Number(m[1]);
+    const mo = Number(m[2]) - 1;
+    const d = Number(m[3]);
+    const date = new Date(y, mo, d);
+    return Number.isNaN(date.getTime()) ? null : date;
+  }
+  return null;
 }
 
 export default function DatePicker({
@@ -48,7 +61,7 @@ export default function DatePicker({
           aria-label="Pilih tanggal"
         >
           <span className="font-mono tabular-nums">
-            {selected ? toDateStrLocal(selected) : "YYYY-MM-DD"}
+            {selected ? toDateStrLocal(selected) : "DD-MM-YYYY"}
           </span>
         </button>
       </PopoverTrigger>

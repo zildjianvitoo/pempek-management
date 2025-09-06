@@ -11,7 +11,7 @@ Dokumen ini merangkum visi produk, arsitektur, rancangan halaman/komponen, skema
 
 ### Pengguna & Peran
 
-- Owner: semua cabang, laporan konsolidasi, kontrol harga/HPP.
+- Owner: semua cabang, laporan konsolidasi, kontrol harga.
 - Kasir: POS, struk, retur.
 
 ### Halaman Utama (Pages)
@@ -21,14 +21,14 @@ Dokumen ini merangkum visi produk, arsitektur, rancangan halaman/komponen, skema
 3. Stok: saldo per cabang×produk, kartu stok/mutasi, transfer antar cabang.
 4. Transaksi: riwayat penjualan, retur/void terstruktur.
 5. Keuangan: pemasukan/pengeluaran, tutup harian, rekonsiliasi kas.
-6. Master Data: cabang, produk/HPP/harga, pengguna & peran.
+6. Master Data: cabang, produk, harga, pengguna & peran.
 7. Laporan: penjualan, laba kotor, selisih stok; ekspor CSV/PDF.
 
 ### Komponen Kunci (Reusable)
 
 - Header Global: switch `Cabang` + selector `Tanggal` (default: hari ini) + user menu.
 - Kartu KPI: Penjualan, Laba Kotor, AOV, Item Terlaris, Stok Menipis.
-- Tabel: sticky header; kolom umum: Produk, SKU, Saldo, Mutasi, HPP, Harga; filter/sort/search/pagination; dikelola dengan TanStack Table (React Table).
+- Tabel: sticky header; kolom umum: Produk, Saldo, Mutasi, Harga; filter/sort/search/pagination; dikelola dengan TanStack Table (React Table).
 - Dialog: Mutasi Stok (Masuk/Keluar/Transfer + Alasan), Pembayaran (split tender), Tutup Harian.
 - Form/Input: Input angka monospace, stepper +/−, keypad numeric.
 - Toast/Notif: sukses, error, stok habis.
@@ -78,10 +78,10 @@ Dokumen ini merangkum visi produk, arsitektur, rancangan halaman/komponen, skema
 
 ### Skema Data (draft v1 – Prisma)
 
-- Branch(id, name, code, address, isActive)
+- Branch(id, name, address)
 - User(id, name, email, hash, role, branchId?)
-- Product(id, name, sku, category, unit, isActive)
-- Price(id, productId, branchId?, price, cost, effectiveAt)
+- Product(id, name, category, unit)
+- Price(id, productId, branchId?, price)
 - StockLedger(id, branchId, productId, qty, reason, refType, refId, note, createdAt)
   - reason enum: PRODUKSI | PENJUALAN | RETUR | TRANSFER_IN | TRANSFER_OUT | WASTE | PENYESUAIAN
 - Transfer(id, fromBranchId, toBranchId, createdById, status, createdAt)
@@ -138,9 +138,9 @@ Catatan: saldo stok dihitung agregasi `StockLedger` (bukan kolom saldo), memasti
 
 ### M3 – Master Data
 
-- [ ] CRUD Cabang.
-- [ ] CRUD Produk (kategori, SKU, unit).
-- [ ] Harga & HPP per cabang dengan `effectiveAt`.
+- [x] CRUD Cabang (API + halaman list/create).
+- [x] CRUD Produk (kategori, unit) (API + halaman list/create).
+- [x] Harga per cabang (API + halaman list/create, riwayat).
 
 ### M4 – Stok & Mutasi
 

@@ -39,9 +39,7 @@ enum TransferStatus {
 model Branch {
   id       String  @id @default(cuid())
   name     String
-  code     String  @unique
   address  String?
-  isActive Boolean @default(true)
 
   users         User[]
   prices        Price[]
@@ -75,10 +73,8 @@ model User {
 model Product {
   id       String  @id @default(cuid())
   name     String
-  sku      String  @unique
   category String?
   unit     String?
-  isActive Boolean @default(true)
 
   prices       Price[]
   stockLedgers StockLedger[]
@@ -93,13 +89,11 @@ model Price {
   productId String
   branchId  String?
   price     Decimal
-  cost      Decimal
-  effectiveAt DateTime @default(now())
 
   product Product @relation(fields: [productId], references: [id])
   branch  Branch? @relation(fields: [branchId], references: [id])
 
-  @@index([productId, branchId, effectiveAt])
+  @@index([productId, branchId])
 }
 
 model StockLedger {

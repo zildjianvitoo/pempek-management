@@ -4,12 +4,11 @@ import bcrypt from "bcryptjs";
 const prisma = new PrismaClient();
 
 async function main() {
-  // Create branches
-  const pusat = await prisma.branch.upsert({
-    where: { code: "PST" },
-    update: {},
-    create: { code: "PST", name: "Pusat", address: "Jl. Contoh 123", isActive: true },
-  });
+  // Create branches (by name)
+  let pusat = await prisma.branch.findFirst({ where: { name: "Pusat" } });
+  if (!pusat) {
+    pusat = await prisma.branch.create({ data: { name: "Pusat", address: "Jl. Contoh 123" } });
+  }
 
   // Create users (Owner, Kasir) — with hashed passwords
   const ownerPassword = await bcrypt.hash("admin123", 10);
@@ -39,42 +38,32 @@ async function main() {
 
   // Seed products
   const products = [
-    { sku: "LENJER-S", name: "Lenjer (S)", category: "Lenjer", unit: "pcs", cost: "2500", price: "4000" },
-    { sku: "LENJER-M", name: "Lenjer (M)", category: "Lenjer", unit: "pcs", cost: "3500", price: "6000" },
-    { sku: "KAPSEL", name: "Kapal Selam", category: "Kapal Selam", unit: "pcs", cost: "8000", price: "12000" },
-    { sku: "KULIT", name: "Kulit", category: "Kulit", unit: "pcs", cost: "3000", price: "5000" },
-    { sku: "ADAAN", name: "Adaan", category: "Adaan", unit: "pcs", cost: "2500", price: "4000" },
+    { name: "Lenjer (S)", category: "Lenjer", unit: "pcs", price: "4000" },
+    { name: "Lenjer (M)", category: "Lenjer", unit: "pcs", price: "6000" },
+    { name: "Kapal Selam", category: "Kapal Selam", unit: "pcs", price: "12000" },
+    { name: "Kulit", category: "Kulit", unit: "pcs", price: "5000" },
+    { name: "Adaan", category: "Adaan", unit: "pcs", price: "4000" },
   ];
 
   for (const p of products) {
-    const product = await prisma.product.upsert({
-      where: { sku: p.sku },
-      update: {},
-      create: {
-        sku: p.sku,
-        name: p.name,
-        category: p.category,
-        unit: p.unit,
-        isActive: true,
-      },
-    });
+    let product = await prisma.product.findFirst({ where: { name: p.name } });
+    if (!product) {
+      product = await prisma.product.create({
+        data: {
+          name: p.name,
+          category: p.category,
+          unit: p.unit,
+        },
+      });
+    }
 
     // Global price (no branch) and branch-specific price for Pusat
-    await prisma.price.create({
-      data: {
-        productId: product.id,
-        price: p.price,
-        cost: p.cost,
-        effectiveAt: new Date(),
-      },
-    });
+    await prisma.price.create({ data: { productId: product.id, price: p.price } });
     await prisma.price.create({
       data: {
         productId: product.id,
         branchId: pusat.id,
         price: p.price,
-        cost: p.cost,
-        effectiveAt: new Date(),
       },
     });
   }
