@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 const prisma = new PrismaClient();
 
 async function main() {
-  // Create branches (by name)
+  // Create branches by name only
   let pusat = await prisma.branch.findFirst({ where: { name: "Pusat" } });
   if (!pusat) {
     pusat = await prisma.branch.create({ data: { name: "Pusat", address: "Jl. Contoh 123" } });

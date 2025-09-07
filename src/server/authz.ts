@@ -9,3 +9,10 @@ export async function requireOwner() {
   return { ok: true as const, session };
 }
 
+export async function requireAuth() {
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    return { ok: false as const, status: 401, message: "Unauthorized" };
+  }
+  return { ok: true as const, session };
+}

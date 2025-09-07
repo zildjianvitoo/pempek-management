@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { cn } from "@/src/lib/cn";
+import { createPortal } from "react-dom";
 
 type Ctx = {
   open: boolean;
@@ -62,7 +63,7 @@ export function DropdownMenuTrigger({
 export function DropdownMenuContent({
   children,
   className,
-  align = "end",
+  align = "start",
   sideOffset = 8,
 }: {
   children: React.ReactNode;
@@ -74,6 +75,8 @@ export function DropdownMenuContent({
   if (!ctx) throw new Error("DropdownMenuContent must be used within DropdownMenu");
   const { open, setOpen, triggerRef } = ctx;
   const contentRef = useRef<HTMLDivElement>(null);
+  const [mounted, setMounted] = useState(false);
+  const [pos, setPos] = useState<{ top: number; left: number; transform?: string }>({ top: 0, left: 0 });
 
   // Close on outside click / escape
   useEffect(() => {
@@ -95,21 +98,64 @@ export function DropdownMenuContent({
     };
   }, [open, setOpen, triggerRef]);
 
-  if (!open) return null;
+  useEffect(() => setMounted(true), []);
 
-  return (
+  // Positioning via portal (prevents clipping by overflow containers)
+  useEffect(() => {
+    function calc() {
+      const el = triggerRef.current as HTMLElement | null;
+      const content = contentRef.current as HTMLDivElement | null;
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      let left = r.left;
+      let transform = "";
+      if (align === "center") {
+        left = r.left + r.width / 2;
+        transform = "translateX(-50%)";
+      } else if (align === "end") {
+        left = r.right;
+        transform = "translateX(-100%)";
+      }
+      let top = r.bottom + sideOffset;
+      // clamp horizontally to viewport once we know content width
+      requestAnimationFrame(() => {
+        const cw = content?.getBoundingClientRect().width ?? 0;
+        const maxLeft = window.innerWidth - cw - 8;
+        const minLeft = 8;
+        let computedLeft = left;
+        if (!transform) computedLeft = Math.min(Math.max(minLeft, left), Math.max(minLeft, maxLeft));
+        setPos({ top, left: computedLeft, transform });
+      });
+    }
+    if (open) {
+      calc();
+      const ro = new ResizeObserver(calc);
+      if (triggerRef.current) ro.observe(triggerRef.current);
+      window.addEventListener("resize", calc);
+      window.addEventListener("scroll", calc, true);
+      return () => {
+        ro.disconnect();
+        window.removeEventListener("resize", calc);
+        window.removeEventListener("scroll", calc, true);
+      };
+    }
+  }, [open, align, sideOffset, triggerRef]);
+
+  if (!open || !mounted) return null;
+
+  return createPortal(
     <div
       ref={contentRef}
       role="menu"
-      style={{ marginTop: sideOffset }}
+      style={{ position: "fixed", top: pos.top, left: pos.left, transform: pos.transform }}
       className={cn(
-        "absolute z-50 min-w-40 rounded-md border border-neutral-200 bg-white p-1 shadow-md focus:outline-none",
-        align === "end" ? "right-0" : align === "center" ? "left-1/2 -translate-x-1/2" : "left-0",
+        "z-[1000] min-w-40 rounded-md border border-neutral-200 bg-white p-1 shadow-md focus:outline-none",
         className
       )}
     >
       {children}
-    </div>
+    </div>,
+    document.body
   );
 }
 

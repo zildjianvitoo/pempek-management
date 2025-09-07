@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useSession, signOut } from "next-auth/react";
+import { usePathname } from "next/navigation";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -33,6 +34,7 @@ export default function Header() {
   const { data: session } = useSession();
   const [branch, setBranch] = useState("Pusat");
   const [date, setDate] = useState(todayStr());
+  const pathname = usePathname();
 
   // Dummy branches; replace with server data later
   const branches = useMemo(() => [{ name: "Pusat" }, { name: "Cabang 1" }], []);
@@ -56,11 +58,34 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-40 bg-white border-b border-neutral-200 shadow-sm">
       <div className="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 h-16 flex items-center gap-3">
-        <div className="font-semibold text-primary md:flex">Pempek</div>
+        <a href="/" className="font-semibold text-primary md:flex">Pempek</a>
         <div className="mx-3 h-6 w-px bg-neutral-200 md:flex" />
 
+        {/* Primary nav (desktop) */}
+        <nav className="hidden md:flex items-center gap-1">
+          {[
+            { href: "/", label: "Dashboard" },
+            { href: "/stok", label: "Stok" },
+            { href: "/master/products", label: "Master" },
+          ].map((l) => {
+            const active = pathname === l.href || pathname?.startsWith(l.href + "/");
+            return (
+              <a
+                key={l.href}
+                href={l.href}
+                className={
+                  "px-3 py-2 rounded-md text-sm " +
+                  (active ? "bg-neutral-100 text-primary font-medium" : "text-neutral-700 hover:bg-neutral-50")
+                }
+              >
+                {l.label}
+              </a>
+            );
+          })}
+        </nav>
+
         {/* Branch & date (desktop only) */}
-        <div className="hidden md:flex items-center gap-2">
+        <div className="hidden md:flex items-center gap-2 ml-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button
@@ -158,9 +183,21 @@ export default function Header() {
                   <div className="mb-2 text-xs font-medium text-neutral-500">Tanggal</div>
                   <DatePicker value={date} onChange={setDate} className="w-full" />
                 </div>
+                {/* Common navigation */}
+                <div className="pt-2">
+                  <div className="mb-2 text-xs font-medium text-neutral-500">Navigasi</div>
+                  <div className="flex flex-col gap-1">
+                    <SheetClose asChild>
+                      <Link className="rounded-md px-3 py-2 hover:bg-neutral-50" href="/stok">
+                        Stok
+                      </Link>
+                    </SheetClose>
+                  </div>
+                </div>
+
                 {session?.user && (session.user as any).role === "OWNER" && (
                   <div className="pt-2">
-                    <div className="mb-2 text-xs font-medium text-neutral-500">Navigasi</div>
+                    <div className="mb-2 text-xs font-medium text-neutral-500">Master Data</div>
                     <div className="flex flex-col gap-1">
                       <SheetClose asChild>
                         <Link

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { cn } from "@/src/lib/cn";
 
 type PopoverCtx = {
@@ -76,6 +77,8 @@ export function PopoverContent({
   if (!ctx) throw new Error("PopoverContent must be used within Popover");
   const { open, setOpen, triggerRef } = ctx;
   const contentRef = useRef<HTMLDivElement>(null);
+  const [mounted, setMounted] = useState(false);
+  const [pos, setPos] = useState<{ top: number; left: number; transform?: string }>({ top: 0, left: 0 });
 
   useEffect(() => {
     onOpenChange?.(open);
@@ -100,22 +103,55 @@ export function PopoverContent({
     };
   }, [open, setOpen, triggerRef]);
 
-  if (!open) return null;
+  // Mount effect for portal target
+  useEffect(() => setMounted(true), []);
 
-  return (
+  // Recalculate position when open changes or on resize/scroll
+  useEffect(() => {
+    function calc() {
+      const el = triggerRef.current as HTMLElement | null;
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      let left = r.left;
+      let transform = "";
+      if (align === "center") {
+        left = r.left + r.width / 2;
+        transform = "translateX(-50%)";
+      } else if (align === "end") {
+        left = r.right;
+        transform = "translateX(-100%)";
+      }
+      setPos({ top: r.bottom + sideOffset, left, transform });
+    }
+    if (open) {
+      calc();
+      const ro = new ResizeObserver(calc);
+      if (triggerRef.current) ro.observe(triggerRef.current);
+      window.addEventListener("resize", calc);
+      window.addEventListener("scroll", calc, true);
+      return () => {
+        ro.disconnect();
+        window.removeEventListener("resize", calc);
+        window.removeEventListener("scroll", calc, true);
+      };
+    }
+  }, [open, align, sideOffset, triggerRef]);
+
+  if (!open || !mounted) return null;
+
+  return createPortal(
     <div
       ref={contentRef}
       role="dialog"
       aria-modal="false"
-      style={{ marginTop: sideOffset }}
+      style={{ position: "fixed", top: pos.top, left: pos.left, transform: pos.transform }}
       className={cn(
-        "absolute z-50 min-w-40 rounded-md border border-neutral-200 bg-white p-2 shadow-md focus:outline-none",
-        align === "end" ? "right-0" : align === "center" ? "left-1/2 -translate-x-1/2" : "left-0",
+        "z-[1000] min-w-40 rounded-md border border-neutral-200 bg-white p-2 shadow-md focus:outline-none",
         className
       )}
     >
       {children}
-    </div>
+    </div>,
+    document.body
   );
 }
-

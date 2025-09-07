@@ -144,9 +144,15 @@ Catatan: saldo stok dihitung agregasi `StockLedger` (bukan kolom saldo), memasti
 
 ### M4 – Stok & Mutasi
 
-- [ ] Kartu stok: saldo agregasi per cabang×produk.
-- [ ] Dialog Mutasi (Masuk/Keluar) + alasan wajib.
-- [ ] Transfer antar cabang (OUT/IN twin-ledger) + status.
+- [x] Kartu stok: saldo agregasi per cabang×produk.
+- [x] Dialog Mutasi (Masuk/Keluar) + alasan wajib.
+- [x] Transfer antar cabang (OUT/IN twin-ledger) + status.
+
+Catatan M4:
+- Halaman `stok` tersedia dengan tabel saldo per cabang×produk, aksi: Mutasi, Transfer, dan Kartu Stok.
+- API: `GET /api/stock/summary`, `GET /api/stock/ledger`, `POST /api/stock/mutate`, `GET/POST /api/transfers`, `GET /api/branches/all`.
+- Transfer membuat twin-ledger otomatis dan menandai status `COMPLETED` saat dibuat.
+- UI: dropdown aksi memakai komponen shadcn-style, form ditampilkan dalam `Dialog`; tombol close ikon `X`.
 
 ### M5 – POS
 

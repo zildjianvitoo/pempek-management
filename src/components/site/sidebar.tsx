@@ -7,6 +7,10 @@ import { SheetClose } from "@/src/components/ui/sheet";
 
 const items = [
   {
+    section: "Operasional",
+    links: [{ href: "/stok", label: "Stok" }],
+  },
+  {
     section: "Master Data",
     links: [
       { href: "/master/branches", label: "Cabang" },

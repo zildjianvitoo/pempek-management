@@ -2,9 +2,7 @@
 CREATE TABLE "Branch" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "name" TEXT NOT NULL,
-    "code" TEXT NOT NULL,
-    "address" TEXT,
-    "isActive" BOOLEAN NOT NULL DEFAULT true
+    "address" TEXT
 );
 
 -- CreateTable
@@ -22,10 +20,8 @@ CREATE TABLE "User" (
 CREATE TABLE "Product" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "name" TEXT NOT NULL,
-    "sku" TEXT NOT NULL,
     "category" TEXT,
-    "unit" TEXT,
-    "isActive" BOOLEAN NOT NULL DEFAULT true
+    "unit" TEXT
 );
 
 -- CreateTable
@@ -34,8 +30,6 @@ CREATE TABLE "Price" (
     "productId" TEXT NOT NULL,
     "branchId" TEXT,
     "price" DECIMAL NOT NULL,
-    "cost" DECIMAL NOT NULL,
-    "effectiveAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT "Price_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT "Price_branchId_fkey" FOREIGN KEY ("branchId") REFERENCES "Branch" ("id") ON DELETE SET NULL ON UPDATE CASCADE
 );
@@ -149,9 +143,6 @@ CREATE TABLE "DailyClose" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Branch_code_key" ON "Branch"("code");
-
--- CreateIndex
 CREATE INDEX "Branch_name_idx" ON "Branch"("name");
 
 -- CreateIndex
@@ -161,13 +152,10 @@ CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 CREATE INDEX "User_branchId_idx" ON "User"("branchId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Product_sku_key" ON "Product"("sku");
-
--- CreateIndex
 CREATE INDEX "Product_name_idx" ON "Product"("name");
 
 -- CreateIndex
-CREATE INDEX "Price_productId_branchId_effectiveAt_idx" ON "Price"("productId", "branchId", "effectiveAt");
+CREATE INDEX "Price_productId_branchId_idx" ON "Price"("productId", "branchId");
 
 -- CreateIndex
 CREATE INDEX "StockLedger_branchId_productId_createdAt_idx" ON "StockLedger"("branchId", "productId", "createdAt");

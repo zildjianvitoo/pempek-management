@@ -20,3 +20,32 @@ export const PriceCreateSchema = z.object({
   branchId: z.string().optional().nullable(),
   price: z.string().min(1),
 });
+
+// M4 – Stok & Mutasi
+export const StockMutationSchema = z.object({
+  branchId: z.string().min(1),
+  productId: z.string().min(1),
+  direction: z.enum(["IN", "OUT"]),
+  qty: z.number().int().positive(),
+  reason: z.enum([
+    "PRODUKSI",
+    "PENJUALAN",
+    "RETUR",
+    "TRANSFER_IN",
+    "TRANSFER_OUT",
+    "WASTE",
+    "PENYESUAIAN",
+  ]),
+  note: z.string().optional().nullable(),
+});
+
+export const TransferItemSchema = z.object({
+  productId: z.string().min(1),
+  qty: z.number().int().positive(),
+});
+
+export const TransferCreateSchema = z.object({
+  fromBranchId: z.string().min(1),
+  toBranchId: z.string().min(1),
+  items: z.array(TransferItemSchema).min(1),
+});
